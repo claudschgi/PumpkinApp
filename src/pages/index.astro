@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Pumpkin App">
+  <section class="space-y-4">
+    <h1 class="text-3xl font-bold">Kürbisse erlebbar machen</h1>
+    <p>Self-hosted Astro + Tailwind + Postgres Plattform für Kürbisse, Rezepte und personalisierte Favoriten.</p>
+    <div class="grid gap-4 md:grid-cols-3">
+      <a href="/pumpkins" class="rounded-lg bg-white p-4 shadow">Kürbis-Katalog</a>
+      <a href="/recipes" class="rounded-lg bg-white p-4 shadow">Rezepte entdecken</a>
+      <a href="/admin" class="rounded-lg bg-white p-4 shadow">Admin Dashboard</a>
+    </div>
+  </section>
+</BaseLayout>

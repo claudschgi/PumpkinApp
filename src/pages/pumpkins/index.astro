@@ -1,0 +1,29 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { listPumpkins } from '@/lib/content';
+
+const url = new URL(Astro.request.url);
+const pumpkins = await listPumpkins({
+  q: url.searchParams.get('q') ?? undefined,
+  season: url.searchParams.get('season') ? Number(url.searchParams.get('season')) : undefined,
+  taste: url.searchParams.get('taste') ?? undefined
+});
+---
+
+<BaseLayout title="Kürbisse">
+  <h1 class="mb-4 text-2xl font-bold">Kürbis-Liste</h1>
+  <form class="mb-6 grid gap-2 md:grid-cols-4" method="get">
+    <input name="q" placeholder="Suche" class="rounded border px-3 py-2" />
+    <input name="season" type="number" min="1" max="12" placeholder="Saison" class="rounded border px-3 py-2" />
+    <input name="taste" placeholder="Geschmack" class="rounded border px-3 py-2" />
+    <button class="rounded bg-pumpkin-500 px-3 py-2 text-white">Filtern</button>
+  </form>
+  <ul class="space-y-3">
+    {pumpkins.map((pumpkin: any) => (
+      <li class="rounded bg-white p-4 shadow">
+        <a href={`/pumpkins/${pumpkin.slug}`} class="font-semibold">{pumpkin.name}</a>
+        <p class="text-sm">{pumpkin.description}</p>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

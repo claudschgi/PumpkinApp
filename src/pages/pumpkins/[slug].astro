@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { query } from '@/lib/db';
+
+const { slug } = Astro.params;
+const pumpkins = await query<any>('SELECT * FROM content.pumpkins WHERE slug = $1 LIMIT 1', [slug]);
+const pumpkin = pumpkins[0];
+if (!pumpkin) return Astro.redirect('/pumpkins');
+const recipes = await query<any>(
+  `SELECT r.slug, r.title
+   FROM content.recipe_pumpkins rp
+   JOIN content.recipes r ON r.id = rp.recipe_id
+   WHERE rp.pumpkin_id = $1`,
+  [pumpkin.id]
+);
+---
+<BaseLayout title={pumpkin.name}>
+  <h1 class="text-2xl font-bold">{pumpkin.name}</h1>
+  <p class="my-3">{pumpkin.description}</p>
+  <h2 class="mt-6 font-semibold">Passende Rezepte</h2>
+  <ul class="list-disc pl-5">
+    {recipes.map((recipe: any) => <li><a href={`/recipes/${recipe.slug}`}>{recipe.title}</a></li>)}
+  </ul>
+</BaseLayout>

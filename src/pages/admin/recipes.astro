@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout title="Admin recipes">
+  <h1 class="text-2xl font-bold">Admin: recipes</h1>
+  <form id="recipe-form" class="mt-6 grid gap-2 rounded bg-white p-4 shadow md:max-w-xl">
+    <input name="slug" placeholder="slug" class="rounded border px-3 py-2" required />
+    <input name="title" placeholder="Titel" class="rounded border px-3 py-2" required />
+    <textarea name="description" placeholder="Beschreibung" class="rounded border px-3 py-2" required></textarea>
+    <select name="difficulty" class="rounded border px-3 py-2"><option>easy</option><option>medium</option><option>hard</option></select>
+    <button class="rounded bg-pumpkin-500 px-3 py-2 text-white">Anlegen</button>
+    <p id="result" class="text-sm"></p>
+  </form>
+  <script>
+    const form = document.querySelector('#recipe-form');
+    const result = document.querySelector('#result');
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const auth = await fetch('/api/auth/me').then((r) => r.json());
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.instructions = [];
+      const response = await fetch('/api/admin/recipes', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-csrf-token': auth.csrfToken },
+        body: JSON.stringify(data)
+      });
+      result.textContent = response.ok ? 'Rezept angelegt ✅' : 'Fehler beim Anlegen';
+    });
+  </script>
+</BaseLayout>
