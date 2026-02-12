@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { listRecipes } from '@/lib/content';
+
+const url = new URL(Astro.request.url);
+const recipes = await listRecipes({
+  q: url.searchParams.get('q') ?? undefined,
+  diet: url.searchParams.get('diet') ?? undefined,
+  difficulty: url.searchParams.get('difficulty') ?? undefined,
+  timeMax: url.searchParams.get('timeMax') ? Number(url.searchParams.get('timeMax')) : undefined
+});
+---
+<BaseLayout title="Rezepte">
+  <h1 class="mb-4 text-2xl font-bold">Rezept-Liste</h1>
+  <form class="mb-6 grid gap-2 md:grid-cols-5" method="get">
+    <input name="q" placeholder="Suche" class="rounded border px-3 py-2" />
+    <input name="diet" placeholder="Ernährung" class="rounded border px-3 py-2" />
+    <select name="difficulty" class="rounded border px-3 py-2"><option value="">Schwierigkeit</option><option>easy</option><option>medium</option><option>hard</option></select>
+    <input name="timeMax" type="number" placeholder="max Minuten" class="rounded border px-3 py-2" />
+    <button class="rounded bg-pumpkin-500 px-3 py-2 text-white">Filtern</button>
+  </form>
+  <ul class="space-y-3">
+    {recipes.map((recipe: any) => (
+      <li class="rounded bg-white p-4 shadow">
+        <a href={`/recipes/${recipe.slug}`} class="font-semibold">{recipe.title}</a>
+        <p class="text-sm">{recipe.description}</p>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

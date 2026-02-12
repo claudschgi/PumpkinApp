@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pumpkin
+      POSTGRES_PASSWORD: pumpkin
+      POSTGRES_DB: pumpkin
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      DATABASE_URL: postgres://pumpkin:pumpkin@postgres:5432/pumpkin
+      SESSION_SECRET: change-me
+    ports:
+      - '4321:4321'
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

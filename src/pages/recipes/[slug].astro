@@ -1,0 +1,35 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { query } from '@/lib/db';
+
+const { slug } = Astro.params;
+const rows = await query<any>('SELECT * FROM content.recipes WHERE slug = $1 LIMIT 1', [slug]);
+const recipe = rows[0];
+if (!recipe) return Astro.redirect('/recipes');
+const ingredients = await query<any>(
+  `SELECT i.name, ri.amount, COALESCE(ri.unit, i.default_unit) AS unit, ri.note
+   FROM content.recipe_ingredients ri
+   JOIN content.ingredients i ON i.id = ri.ingredient_id
+   WHERE ri.recipe_id = $1
+   ORDER BY ri.sort_order`,
+  [recipe.id]
+);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Recipe',
+  name: recipe.title,
+  description: recipe.description,
+  recipeYield: recipe.servings,
+  recipeIngredient: ingredients.map((i: any) => `${i.amount ?? ''} ${i.unit ?? ''} ${i.name}`.trim()),
+  recipeInstructions: recipe.instructions
+};
+---
+<BaseLayout title={recipe.title}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <h1 class="text-2xl font-bold">{recipe.title}</h1>
+  <p class="my-3">{recipe.description}</p>
+  <h2 class="mt-6 font-semibold">Zutaten</h2>
+  <ul class="list-disc pl-5">
+    {ingredients.map((i: any) => <li>{i.amount} {i.unit} {i.name}</li>)}
+  </ul>
+</BaseLayout>
